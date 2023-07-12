@@ -1,8 +1,14 @@
 # pre-requisitos
 
+## mac
 requiere que home brew se encuentre instalado en la mac
 
 luego instalar ansible usando `brew install ansible`
+
+## windows
+requiere la instalación de `winget` y `conEmu` para que funcione correctamente.
+
+Requiere ansible instalado en la maquina
 
 ----
 # Con Ansible Galaxy
