@@ -1,0 +1,298 @@
+---
+- name: Instalar herramientas en Mac con Homebrew y configurar Oh My Zsh
+  hosts: localhost
+  gather_facts: false
+
+  vars:
+    jenv_path: ~/.jenv
+
+  tasks:
+    - name: Instalar Xcode Command Line Tools
+      become: true
+      command: xcode-select --install
+      args:
+        creates: /Library/Developer/CommandLineTools/usr/bin/git
+
+    - name: Esperar a que se instalen las herramientas de línea de comandos de Xcode
+      become: false
+      pause:
+        seconds: 10
+
+    - name: Actualizar Homebrew
+      become: false
+      command: brew update
+      changed_when: false
+
+    - name: Instalar Git
+      become: false
+      homebrew:
+        name: git
+
+    - name: Git branch por defecto main
+      become: false
+      command: git config --global init.defaultBranch main
+
+    - name: Git Configurar correo y usuario globalmente
+      become: false
+      shell: >
+        git config --global user.email "cacevedod@devco.com.co" && git config --global user.name "cacevedod"
+
+    - name: Crear alias global para 'git checkout' como 'git ck'
+      become: false
+      command: git config --global alias.ck checkout
+
+
+    - name: Generar claves SSH
+      become: false
+      shell: >
+        ssh-keygen -t rsa -b 4096 -C "cacevedod@devco.com.co" -f ~/.ssh/id_rsa -N ''
+      args:
+        creates: ~/.ssh/id_rsa
+
+    - name: Mostrar clave pública SSH
+      become: false
+      command: cat ~/.ssh/id_rsa.pub
+      register: public_key
+
+    - name: Imprimir clave pública SSH
+      debug:
+        var: public_key.stdout
+
+    - name: Instalar NVM
+      become: false
+      homebrew:
+        name: nvm
+
+    - name: Configurar NVM en el archivo de perfil (zsh)
+      become: false
+      lineinfile:
+        dest: ~/.zshrc
+        line: 'export NVM_DIR="$HOME/.nvm"'
+        state: present
+
+    - name: Cargar NVM en el archivo de perfil (zsh)
+      become: false
+      lineinfile:
+        dest: ~/.zshrc
+        line: '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"'
+        state: present
+
+    - name: Instalar jEnv
+      become: false
+      homebrew:
+        name: jenv
+
+    - name: Configurar jEnv en el archivo de perfil (zsh)
+      become: false
+      lineinfile:
+        dest: ~/.zshrc
+        line: 'eval "$(jenv init -)"'
+        state: present
+
+    - name: Instalar Java (OpenJDK)
+      become: false
+      homebrew:
+        name: openjdk@11
+
+    - name: symlink Java (OpenJDK)
+      become: true
+      command: ln -sfn /opt/homebrew/opt/openjdk@11/libexec/openjdk.jdk /Library/Java/JavaVirtualMachines/openjdk-11.jdk
+
+    - name: Configurar OpenJDK en el archivo de perfil (zsh)
+      become: false
+      lineinfile:
+        dest: ~/.zshrc
+        line: 'export PATH="/opt/homebrew/opt/openjdk@11/bin:$PATH"'
+        state: present
+
+    - name: Configurar para compiladores
+      become: false
+      lineinfile:
+        dest: ~/.zshrc
+        line: 'export CPPFLAGS="-I/opt/homebrew/opt/openjdk@11/include"'
+        state: present
+
+    - name: Configurar Java con jEnv
+      become: false
+      command: jenv add /Library/Java/JavaVirtualMachines/openjdk-11.jdk/Contents/Home
+      args:
+        creates: "{{ jenv_path }}/versions/11.0"
+
+    - name: Establecer versión de Java por defecto
+      become: false
+      command: jenv global 11.0
+
+    - name: Verificar si Oh My Zsh está instalado
+      become: false
+      stat:
+        path: ~/.oh-my-zsh
+      register: ohmyzsh_installed
+
+    - name: Instalar Oh My Zsh
+      become: true
+      shell: >
+        sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+      when: not ohmyzsh_installed.stat.exists
+
+    - name: Configurar plugins en el archivo de perfil de Oh My Zsh (zsh)
+      become: false
+      lineinfile:
+        dest: ~/.zshrc
+        line: 'plugins=(git docker ansible terraform docker-compose brew)'
+        state: present
+      when: ohmyzsh_installed.stat.exists
+
+    - name: Cargar configuración zsh
+      become: false
+      shell: source ~/.zshrc
+
+    - name: Instalar Docker Desktop
+      become: false
+      homebrew_cask:
+        name: docker
+
+    - name: Cargar configuración zsh después de configurar alias
+      become: false
+      shell: source ~/.zshrc
+
+    - name: Reiniciar Docker Desktop
+      become: false
+      command: osascript -e 'quit app "Docker"'
+
+    - name: Esperar a que Docker Desktop se reinicie
+      become: false
+      pause:
+        minutes: 1
+
+    - name: Verificar si iTerm2 está instalado
+      become: false
+      stat:
+        path: /Applications/iTerm.app
+      register: iterm2_installed
+
+    - name: Instalar iTerm2
+      become: true
+      homebrew_cask:
+        name: iterm2
+      when: not iterm2_installed.stat.exists
+
+    - name: Descargar tmux config
+      become: false
+      get_url:
+        url: https://raw.githubusercontent.com/gpakosz/.tmux/master/.tmux.conf
+        dest: ~/.tmux.conf
+        mode: '0644'
+        validate_certs: no
+
+    - name: Verificar si tmux está instalado
+      become: false
+      stat:
+        path: /usr/local/bin/tmux
+      register: tmux_installed
+
+    - name: Instalar tmux
+      become: false
+      homebrew:
+        name: tmux
+      when: not tmux_installed.stat.exists
+
+    - name: Verificar si la sesión de tmux 'default' ya existe
+      become: false
+      command: tmux has-session -t default
+      register: tmux_session_check
+      ignore_errors: true
+
+    - name: Iniciar nueva sesión de tmux si 'default' no existe
+      become: false
+      command: tmux new-session -d -s default
+      when: tmux_session_check.rc != 0
+
+
+    - name: Cargar configuración tmux
+      become: false
+      shell: tmux source-file ~/.tmux.conf
+
+    - name: Verificar si Google Chrome está instalado
+      become: false
+      stat:
+        path: /Applications/Google Chrome.app
+      register: chrome_installed
+
+    - name: Instalar Google Chrome
+      become: false
+      homebrew_cask:
+        name: google-chrome
+      when: not chrome_installed.stat.exists
+
+    - name: Verificar si Visual Studio Code está instalado
+      become: false
+      stat:
+        path: /Applications/Visual Studio Code.app
+      register: vscode_installed
+
+    - name: Instalar Visual Studio Code
+      become: false
+      homebrew_cask:
+        name: visual-studio-code
+      when: not vscode_installed.stat.exists
+
+    - name: Verificar si IntelliJ IDEA Community Edition está instalado
+      become: false
+      stat:
+        path: /Applications/IntelliJ IDEA CE.app
+      register: intellij_installed
+
+    - name: Instalar IntelliJ IDEA Community Edition
+      become: false
+      homebrew_cask:
+        name: intellij-idea-ce
+      when: not intellij_installed.stat.exists
+
+    - name: Verificar si Appium 2 está instalado
+      become: false
+      stat:
+        path: /Applications/Appium.app
+      register: appium2_installed
+
+    - name: Instalar Appium 2
+      become: false
+      homebrew_cask:
+        name: appium
+      when: not appium2_installed.stat.exists
+
+    - name: Verificar si Appium Inspector está instalado
+      become: false
+      stat:
+        path: /Applications/Appium Inspector.app
+      register: appium_inspector_installed
+
+    - name: Instalar Appium Inspector
+      become: false
+      homebrew_cask:
+        name: appium-inspector
+      when: not appium_inspector_installed.stat.exists
+
+    - name: Verificar si Minikube está instalado
+      become: false
+      stat:
+        path: /usr/local/bin/minikube
+      register: minikube_installed
+
+    - name: Instalar Minikube
+      become: false
+      command: brew install minikube
+      when: not minikube_installed.stat.exists
+
+    - name: Verificar si AWS CLI está instalado
+      become: false
+      shell: brew list | grep -w "awscli"
+      register: awscli_installed
+      ignore_errors: true
+
+    - name: Instalar AWS CLI utilizando Homebrew
+      become: true
+      community.general.homebrew:
+        name: awscli
+        state: latest
+      when: awscli_installed.rc != 0
+
