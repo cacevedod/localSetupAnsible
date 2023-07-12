@@ -74,7 +74,7 @@
       become: false
       lineinfile:
         dest: ~/.zshrc
-        line: '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"'
+        line: 'source $(brew --prefix nvm)/nvm.sh'
         state: present
 
     - name: Instalar jEnv
