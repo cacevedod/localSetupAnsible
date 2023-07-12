@@ -1,0 +1,101 @@
+- name: Instalar herramientas en Windows con Winget y ConEmu
+  hosts: localhost
+  gather_facts: false
+
+  tasks:
+    - name: Verificar si Winget está instalado
+      win_command: winget
+      register: winget_installed
+      ignore_errors: true
+
+    - name: Instalar Winget
+      win_command: powershell.exe -Command "Invoke-WebRequest -Uri https://github.com/microsoft/winget-cli/releases/latest/download/winget-cli.msixbundle -OutFile winget-cli.msixbundle; Add-AppxPackage -Path winget-cli.msixbundle"
+      when: winget_installed.rc != 0
+
+    - name: Instalar Git
+      win_package:
+        name: Git
+        state: present
+
+    - name: Configurar Git globalmente
+      win_shell: git config --global init.defaultBranch main && git config --global user.email "cacevedod@devco.com.co" && git config --global user.name "cacevedod"
+
+    - name: Generar claves SSH
+      win_command: ssh-keygen.exe -t rsa -b 4096 -C "cacevedod@devco.com.co" -f ~/.ssh/id_rsa -N ""
+
+    - name: Mostrar clave pública SSH
+      win_command: type ~/.ssh/id_rsa.pub
+      register: public_key
+
+    - name: Imprimir clave pública SSH
+      debug:
+        var: public_key.stdout
+
+    - name: Instalar NVM
+      win_command: winget install Nvm
+
+    - name: Configurar NVM en el archivo de perfil (PowerShell)
+      win_lineinfile:
+        path: $PROFILE
+        line: 'Set-Variable -Name "NVM_DIR" -Value "$HOME\.nvm" -Option ReadOnly'
+        state: present
+
+    - name: Configurar NVM en el archivo de inicio de ConEmu
+      win_lineinfile:
+        path: "%APPDATA%\ConEmu.xml"
+        regex: '<bash.*?Commands=".*?"'
+        line: '<bash name="NVM" dir="%HOME%\.nvm" run="%ConEmuBaseDirShort%\wsl\wslbridge.exe" runargs="--wsl -d Ubuntu-20.04 --" cmd="-cur_console:pm:/mnt/c/Program\ Files/nodejs/npm.cmd" tasklist="VS Code tasks" taskbarlist="VS Code tasks" runlist="VS Code tasks" />'
+        state: present
+        backrefs: yes
+
+    - name: Instalar Node.js LTS
+      win_command: nvm install --lts
+
+    - name: Instalar jEnv
+      win_command: winget install jenv
+
+    - name: Configurar jEnv en el archivo de perfil (PowerShell)
+      win_lineinfile:
+        path: $PROFILE
+        line: 'jenv init'
+        state: present
+
+    - name: Descargar y extraer Java (OpenJDK)
+      win_command: powershell.exe -Command "Invoke-WebRequest -Uri https://download.java.net/java/early_access/jdk17/27/GPL/openjdk-17-ea+27_windows-x64_bin.zip -OutFile openjdk-17-ea+27_windows-x64_bin.zip; Expand-Archive -Path openjdk-17-ea+27_windows-x64_bin.zip -DestinationPath C:\Java\openjdk-17"
+      args:
+        creates: C:\Java\openjdk-17
+
+    - name: Configurar Java en el archivo de perfil (PowerShell)
+      win_lineinfile:
+        path: $PROFILE
+        line: 'Set-Variable -Name "JAVA_HOME" -Value "C:\Java\openjdk-17" -Option ReadOnly'
+        state: present
+
+    - name: Agregar Java al PATH (PowerShell)
+      win_path:
+        elements:
+          - "C:\Java\openjdk-17\bin"
+
+    - name: Establecer versión de Java por defecto con jEnv
+      win_command: jenv add "C:\Java\openjdk-17"
+
+    - name: Establecer versión de Java por defecto con jEnv
+      win_command: jenv global 17
+
+    - name: Instalar Docker Desktop
+      win_command: winget install DockerDesktop
+
+    - name: Instalar Visual Studio Code
+      win_command: winget install Microsoft.VisualStudioCode
+
+    - name: Instalar IntelliJ Community Edition
+      win_command: winget install JetBrains.IntelliJCommunity
+
+    - name: Instalar Google Chrome
+      win_command: winget install Google.Chrome
+
+    - name: Instalar ConEmu
+      win_command: winget install ConEmu
+
+    - name: Configurar alias de Git
+      win_command: git config --global alias.ck checkout
