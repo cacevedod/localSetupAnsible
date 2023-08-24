@@ -19,15 +19,9 @@ requiere instalado chocolatey en la maquina windows, se hace abriendo una ventan
 Luego instala git para descargar el repositorio:
 `choco install git.install -n`
 
-Descarga la última versión de python y la instalas.
-`https://www.python.org/downloads`
-Asegurate de hacer check en la opción para que python se cargue en el PATH
+Ansible no funciona correctamente en Windows, entonces creamos un script de PowerShell para configurar la maquina, para ejcutarlo, abres una consola de PowerShell con permisos de administrador, te ubicas en la ruta donde descargaste el repo y ejecutas:
 
-Instala ansible:
-`pip install ansible`
-
-Posteriormente lanzar el comando de ansible, estando ubicado en la ruta donde descargaste el repo:
-`ansible-playbook -i localhost, -c local windows/install-galaxy.yml`
+`.\installPowerShell.ps1`
 
 ----
 # Si te pide Ansible Galaxy
