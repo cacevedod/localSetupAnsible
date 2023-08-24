@@ -1,4 +1,9 @@
 # Instalar herramientas en Windows y configurar
+function Restart-PowerShell {
+    powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "Start-Process powershell.exe -ArgumentList '-NoProfile -ExecutionPolicy Bypass -File $PROFILE'"
+    Exit
+}
+
 
 # Configurar Git branch por defecto main
 git config --global init.defaultBranch main
@@ -27,24 +32,34 @@ choco install openjdk11 -y
 # Configurar JAVA_HOME
 [Environment]::SetEnvironmentVariable("JAVA_HOME", "C:\Program Files\OpenJDK\openjdk-11", [EnvironmentVariableTarget]::Machine)
 
-# Establecer versión de Java por defecto
-pyenv.bat global 11
+# Agregar pyenv al perfil de PowerShell
+$env:PYENV = "C:\ProgramData\chocolatey\lib\pyenv\tools\pyenv-win"
+$env:Path = "$env:PYENV\bin;$env:Path"
+
+Restart-PowerShell
+
+# Instalar Python 3.10
+pyenv install 3.10.1
+
+# Establecer Python 3.10 como global
+pyenv global 3.10.1
 
 # Instalar Docker Desktop
 choco install docker-desktop -y
 
 # Instalar Google Chrome
-if (-Not (Test-Path "$env:ProgramFiles\Google\Chrome\Application\chrome.exe")) {
-    choco install googlechrome -y
-}
+choco install googlechrome -y
 
 # Instalar Visual Studio Code
-if (-Not (Test-Path "$env:ProgramFiles\Microsoft VS Code\Code.exe")) {
-    choco install vscode -y
-}
+choco install vscode -y
+
+# Instalar version 20 de node
+nvm install 20
 
 # Instalar Appium 2
 npm install -g appium@next
+
+npm install -g @appium/doctor
 
 # Instalar xcuitest
 appium driver install xcuitest
@@ -53,29 +68,26 @@ appium driver install xcuitest
 appium driver install uiautomator2
 
 # Instalar Appium Inspector
-if (-Not (Test-Path "C:\Program Files (x86)\Appium\Appium.exe")) {
-    choco install appium -y
-}
+# Definir la URL del archivo .exe que deseas descargar
+$exeUrl = "https://github.com/appium/appium-inspector/releases/download/v2023.8.4/Appium-Inspector-windows-2023.8.4.exe"
+# Definir la ruta donde deseas guardar el archivo .exe descargado
+$downloadPath = "$env:USERPROFILE\Downloads\Appium-Inspector-windows-2023.8.4.exe"
+# Descargar el archivo .exe desde la URL
+Invoke-WebRequest -Uri $exeUrl -OutFile $downloadPath
+# Ejecutar el archivo .exe descargado
+Start-Process -FilePath $downloadPath
 
 # Instalar Minikube
-if (-Not (Test-Path "$env:ProgramData\chocolatey\bin\minikube.exe")) {
-    choco install minikube -y
-}
+choco install minikube -y
 
 # Instalar AWS CLI utilizando Chocolatey
-$awsCliInstalled = Get-WmiObject -Class Win32_Product | Where-Object { $_.Name -eq "Amazon AWS CLI" }
-if (-Not $awsCliInstalled) {
-    choco install awscli -y
-}
+choco install awscli -y
 
-# Instalar warp
-if (-Not (Test-Path "C:\Program Files\Fusion Warp\Warp.exe")) {
-    choco install warp -y
-}
+# Instalar Putty
+choco install putty -y
 
-# Instalar trello
-if (-Not (Test-Path "C:\Program Files\Trello\trello.exe")) {
-    choco install trello -y
-}
+# Instalar intellij
+choco install intellijidea-community -y
 
 Write-Host "¡La instalación y configuración en Windows ha finalizado!"
+
