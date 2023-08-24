@@ -62,7 +62,19 @@
     - name: Instalar Oh My Zsh
       become: true
       shell: >
-        apt update && apt install -y zsh && chsh -s $(which zsh)
+        apt-get install zshsudo apt-get install git-core
+      when: not ohmyzsh_installed.stat.exists
+
+    - name: Instalar Oh My Zsh 2
+      become: true
+      shell: >
+        wget https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh -O - | zsh
+      when: not ohmyzsh_installed.stat.exists
+
+    - name: Instalar Oh My Zsh 3
+      become: true
+      shell: >
+        chsh -s `which zsh`
       when: not ohmyzsh_installed.stat.exists
 
     - name: Configurar plugins en el archivo de perfil de Oh My Zsh (zsh)
