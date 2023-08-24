@@ -1,101 +1,167 @@
-- name: Instalar herramientas en Windows con Winget y ConEmu
+---
+- name: Instalar herramientas en Windows y configurar
   hosts: localhost
-  gather_facts: false
+  gather_facts: no
+
+  vars:
+    nvm_dir: "C:\\nvm"
+    python_installed_path: "C:\\Python310"
+    python_installed_executable: "C:\\Python310\\python.exe"
 
   tasks:
-    - name: Verificar si Winget está instalado
-      win_command: winget
-      register: winget_installed
-      ignore_errors: true
-
-    - name: Instalar Winget
-      win_command: powershell.exe -Command "Invoke-WebRequest -Uri https://github.com/microsoft/winget-cli/releases/latest/download/winget-cli.msixbundle -OutFile winget-cli.msixbundle; Add-AppxPackage -Path winget-cli.msixbundle"
-      when: winget_installed.rc != 0
-
     - name: Instalar Git
-      win_package:
-        name: Git
+      win_chocolatey:
+        name: git
         state: present
 
-    - name: Configurar Git globalmente
-      win_shell: git config --global init.defaultBranch main && git config --global user.email "cacevedod@devco.com.co" && git config --global user.name "cacevedod"
+    - name: Git branch por defecto main
+      win_shell: git config --global init.defaultBranch main
 
-    - name: Generar claves SSH
-      win_command: ssh-keygen.exe -t rsa -b 4096 -C "cacevedod@devco.com.co" -f ~/.ssh/id_rsa -N ""
+    - name: Git Configurar correo y usuario globalmente
+      win_shell: |
+        git config --global user.email "cacevedod@devco.com.co"
+        git config --global user.name "cacevedod"
 
-    - name: Mostrar clave pública SSH
-      win_command: type ~/.ssh/id_rsa.pub
-      register: public_key
-
-    - name: Imprimir clave pública SSH
-      debug:
-        var: public_key.stdout
-
-    - name: Instalar NVM
-      win_command: winget install Nvm
-
-    - name: Configurar NVM en el archivo de perfil (PowerShell)
-      win_lineinfile:
-        path: $PROFILE
-        line: 'Set-Variable -Name "NVM_DIR" -Value "$HOME\.nvm" -Option ReadOnly'
+    - name: Instalar Node.js usando Chocolatey
+      win_chocolatey:
+        name: nodejs-lts
         state: present
 
-    - name: Configurar NVM en el archivo de inicio de ConEmu
-      win_lineinfile:
-        path: "%APPDATA%\ConEmu.xml"
-        regex: '<bash.*?Commands=".*?"'
-        line: '<bash name="NVM" dir="%HOME%\.nvm" run="%ConEmuBaseDirShort%\wsl\wslbridge.exe" runargs="--wsl -d Ubuntu-20.04 --" cmd="-cur_console:pm:/mnt/c/Program\ Files/nodejs/npm.cmd" tasklist="VS Code tasks" taskbarlist="VS Code tasks" runlist="VS Code tasks" />'
+    - name: Instalar Python 3.10
+      win_chocolatey:
+        name: python
+        version: 3.10.1
         state: present
-        backrefs: yes
+      when: python_installed_executable not in ansible_facts.system_info.installed_programs
 
-    - name: Instalar Node.js LTS
-      win_command: nvm install --lts
-
-    - name: Instalar jEnv
-      win_command: winget install jenv
-
-    - name: Configurar jEnv en el archivo de perfil (PowerShell)
-      win_lineinfile:
-        path: $PROFILE
-        line: 'jenv init'
+    - name: Agregar Python 3.10 al PATH
+      win_environment:
+        name: PATH
+        value: "{{ python_installed_path }};{{ ansible_env.PATH }}"
         state: present
+      when: python_installed_executable not in ansible_facts.system_info.environment.PATH
 
-    - name: Descargar y extraer Java (OpenJDK)
-      win_command: powershell.exe -Command "Invoke-WebRequest -Uri https://download.java.net/java/early_access/jdk17/27/GPL/openjdk-17-ea+27_windows-x64_bin.zip -OutFile openjdk-17-ea+27_windows-x64_bin.zip; Expand-Archive -Path openjdk-17-ea+27_windows-x64_bin.zip -DestinationPath C:\Java\openjdk-17"
-      args:
-        creates: C:\Java\openjdk-17
-
-    - name: Configurar Java en el archivo de perfil (PowerShell)
-      win_lineinfile:
-        path: $PROFILE
-        line: 'Set-Variable -Name "JAVA_HOME" -Value "C:\Java\openjdk-17" -Option ReadOnly'
+    - name: Instalar NVM para Windows
+      win_chocolatey:
+        name: nvm
         state: present
 
-    - name: Agregar Java al PATH (PowerShell)
-      win_path:
-        elements:
-          - "C:\Java\openjdk-17\bin"
+    - name: Instalar pyenv
+      win_chocolatey:
+        name: pyenv-win
+        state: present
 
-    - name: Establecer versión de Java por defecto con jEnv
-      win_command: jenv add "C:\Java\openjdk-17"
+    - name: Instalar Java (OpenJDK)
+      win_chocolatey:
+        name: openjdk11
+        state: present
 
-    - name: Establecer versión de Java por defecto con jEnv
-      win_command: jenv global 17
+    - name: Configurar JAVA_HOME
+      win_environment:
+        name: JAVA_HOME
+        value: "C:\\Program Files\\OpenJDK\\openjdk-11"
+        state: present
+
+    - name: Establecer versión de Java por defecto
+      win_shell: pyenv.bat global 11
 
     - name: Instalar Docker Desktop
-      win_command: winget install DockerDesktop
+      win_chocolatey:
+        name: docker-desktop
+        state: present
 
-    - name: Instalar Visual Studio Code
-      win_command: winget install Microsoft.VisualStudioCode
+    - name: Esperar a que Docker Desktop se inicie
+      win_wait_for:
+        path: "C:\\Program Files\\Docker\\Docker\\Docker Desktop.exe"
+        state: started
+        timeout: 300
 
-    - name: Instalar IntelliJ Community Edition
-      win_command: winget install JetBrains.IntelliJCommunity
+    - name: Verificar si Google Chrome está instalado
+      win_stat:
+        path: "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
+      register: chrome_installed
 
     - name: Instalar Google Chrome
-      win_command: winget install Google.Chrome
+      win_chocolatey:
+        name: googlechrome
+        state: present
+      when: not chrome_installed.stat.exists
 
-    - name: Instalar ConEmu
-      win_command: winget install ConEmu
+    - name: Verificar si Visual Studio Code está instalado
+      win_stat:
+        path: "C:\\Program Files\\Microsoft VS Code\\Code.exe"
+      register: vscode_installed
 
-    - name: Configurar alias de Git
-      win_command: git config --global alias.ck checkout
+    - name: Instalar Visual Studio Code
+      win_chocolatey:
+        name: vscode
+        state: present
+      when: not vscode_installed.stat.exists
+
+    - name: Instalar Appium 2
+      win_shell: npm install -g appium@next
+
+    - name: Instalar xcuitest
+      win_shell: appium driver install xcuitest
+
+    - name: Instalar uiautomator2
+      win_shell: appium driver install uiautomator2
+
+    - name: Verificar si Appium Inspector está instalado
+      win_stat:
+        path: "C:\\Program Files (x86)\\Appium\\Appium.exe"
+      register: appium_inspector_installed
+
+    - name: Instalar Appium Inspector
+      win_chocolatey:
+        name: appium
+        state: present
+      when: not appium_inspector_installed.stat.exists
+
+    - name: Verificar si Minikube está instalado
+      win_stat:
+        path: "C:\\ProgramData\\chocolatey\\bin\\minikube.exe"
+      register: minikube_installed
+
+    - name: Instalar Minikube
+      win_chocolatey:
+        name: minikube
+        state: present
+      when: not minikube_installed.stat.exists
+
+    - name: Verificar si AWS CLI está instalado
+      win_shell: Get-WmiObject -Class Win32_Product | Where-Object { $_.Name -eq "Amazon AWS CLI" }
+      register: awscli_installed
+      ignore_errors: true
+
+    - name: Instalar AWS CLI utilizando Chocolatey
+      win_chocolatey:
+        name: awscli
+        state: present
+      when: awscli_installed.rc != 0
+
+    - name: Verificar si warp está instalado
+      win_stat:
+        path: "C:\\Program Files\\Fusion Warp\\Warp.exe"
+      register: warp_installed
+
+    - name: Instalar warp
+      win_chocolatey:
+        name: warp
+        state: present
+      when: not warp_installed.stat.exists
+
+    - name: Verificar si trello está instalado
+      win_stat:
+        path: "C:\\Program Files\\Trello\\trello.exe"
+      register: trello_installed
+
+    - name: Instalar trello
+      win_chocolatey:
+        name: trello
+        state: present
+      when: not trello_installed.stat.exists
+
+    - name: Mostrar mensaje final
+      debug:
+        msg: "¡La instalación y configuración en Windows ha finalizado!"

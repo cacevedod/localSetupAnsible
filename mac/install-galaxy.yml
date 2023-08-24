@@ -316,3 +316,7 @@
       become: false
       shell: source ~/.zshrc
 
+    - name: Mostrar mensaje final
+      debug:
+        msg: "¡La instalación y configuración en Mac ha finalizado!"
+
