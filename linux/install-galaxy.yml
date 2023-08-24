@@ -62,7 +62,9 @@
     - name: Instalar Oh My Zsh
       become: true
       shell: >
-        sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+        apt update
+        apt install zsh
+        chsh -s $(which zsh)
       when: not ohmyzsh_installed.stat.exists
 
     - name: Configurar plugins en el archivo de perfil de Oh My Zsh (zsh)
@@ -78,8 +80,10 @@
       shell: source ~/.zshrc
 
     - name: Instalar NVM
-      become: false
-      command: curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+      become: true
+      apt:
+        name: nvm
+        state: present
 
     - name: Cargar NVM en el archivo de perfil (zsh)
       become: false
@@ -103,8 +107,10 @@
         state: present
 
     - name: Instalar jEnv
-      become: false
-      command: git clone https://github.com/jenv/jenv.git ~/.jenv
+      become: true
+      apt:
+        name: jenv
+        state: present
 
     - name: Configurar jEnv en el archivo de perfil (zsh)
       become: false
@@ -145,8 +151,10 @@
       command: nvm install node
 
     - name: Instalar pyenv
-      become: false
-      command: git clone https://github.com/pyenv/pyenv.git ~/.pyenv
+      become: true
+      apt:
+        name: pyenv
+        state: present
 
     - name: Verificar si Python 3.10 ya está instalado
       become: false
@@ -168,12 +176,6 @@
       apt:
         name: docker.io
         state: present
-
-    - name: Reiniciar Docker
-      become: false
-      service:
-        name: docker
-        state: restarted
 
     - name: Verificar si Google Chrome está instalado
       become: false
@@ -221,7 +223,6 @@
       apt:
         name: appium-desktop
         state: present
-      when: not appium_inspector_installed.stat.exists
 
     - name: Verificar si Minikube está instalado
       become: false
@@ -231,7 +232,9 @@
 
     - name: Instalar Minikube
       become: true
-      command: curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 && chmod +x minikube-linux-amd64 && sudo mv minikube-linux-amd64 /usr/local/bin/minikube
+      apt:
+        name: minikube
+        state: present
       when: not minikube_installed.stat.exists
 
     - name: Verificar si AWS CLI está instalado
@@ -242,7 +245,9 @@
 
     - name: Instalar AWS CLI
       become: true
-      command: curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && unzip awscliv2.zip && sudo ./aws/install
+      apt:
+        name: aws-cli
+        state: present
       when: awscli_installed.rc != 0
 
     - name: Verificar si Android Studio está instalado
@@ -253,7 +258,9 @@
 
     - name: Instalar Android Studio
       become: true
-      command: snap install android-studio --classic
+      snap:
+        name: android-studio
+        classic: yes
       when: not android_installed.stat.exists
 
     - name: Verificar si Postman está instalado
@@ -277,7 +284,9 @@
 
     - name: Instalar Trello
       become: true
-      command: snap install trello
+      snap:
+        name: trello
+        classic: yes
       when: not trello_installed.stat.exists
 
 
