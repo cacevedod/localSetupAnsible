@@ -245,19 +245,6 @@
       command: curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && unzip awscliv2.zip && sudo ./aws/install
       when: awscli_installed.rc != 0
 
-    - name: Verificar si warp está instalado
-      become: false
-      stat:
-        path: /usr/local/bin/warp
-      register: warp_installed
-
-    - name: Instalar warp
-      become: true
-      command: curl -fsSL https://install.warp.dev | sh
-      when: not warp_installed.stat.exists
-
-    # Resto de las tareas para la instalación de otras herramientas
-
     - name: Verificar si Android Studio está instalado
       become: false
       stat:
