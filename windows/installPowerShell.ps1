@@ -1,10 +1,3 @@
-# Instalar herramientas en Windows y configurar
-function Restart-PowerShell {
-    powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "Start-Process powershell.exe -ArgumentList '-NoProfile -ExecutionPolicy Bypass -File $PROFILE'"
-    Exit
-}
-
-
 # Configurar Git branch por defecto main
 git config --global init.defaultBranch main
 
@@ -16,9 +9,7 @@ git config --global user.name "cacevedod"
 choco install nodejs-lts -y
 
 # Instalar Python 3.10
-if (-Not (Test-Path $env:ProgramFiles\Python310\python.exe)) {
-    choco install python --version 3.10.1 -y
-}
+choco install python --version 3.10.1 -y
 
 # Instalar NVM para Windows
 choco install nvm -y
@@ -36,14 +27,6 @@ choco install openjdk11 -y
 $env:PYENV = "C:\ProgramData\chocolatey\lib\pyenv\tools\pyenv-win"
 $env:Path = "$env:PYENV\bin;$env:Path"
 
-Restart-PowerShell
-
-# Instalar Python 3.10
-pyenv install 3.10.1
-
-# Establecer Python 3.10 como global
-pyenv global 3.10.1
-
 # Instalar Docker Desktop
 choco install docker-desktop -y
 
@@ -52,20 +35,6 @@ choco install googlechrome -y
 
 # Instalar Visual Studio Code
 choco install vscode -y
-
-# Instalar version 20 de node
-nvm install 20
-
-# Instalar Appium 2
-npm install -g appium@next
-
-npm install -g @appium/doctor
-
-# Instalar xcuitest
-appium driver install xcuitest
-
-# Instalar uiautomator2
-appium driver install uiautomator2
 
 # Instalar Appium Inspector
 # Definir la URL del archivo .exe que deseas descargar

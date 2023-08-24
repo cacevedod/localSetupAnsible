@@ -30,6 +30,9 @@ Esto te dará permisos para ejcutar scripts powershell.
 Luego lanzas
 `.\windows\installPowerShell.ps1`
 
+Cierras la ventana de PowerShell y abres una nuevamente en la ruta y con permisos de administrador, luego ejecutamos:
+`.\windows\installPowerShell2.ps1`
+
 ----
 # Si te pide Ansible Galaxy
 Ejecutar:
