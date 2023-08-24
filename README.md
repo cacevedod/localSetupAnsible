@@ -8,7 +8,7 @@ luego instalar ansible usando `brew install ansible`
 Luego instala git para descargar el repositorio:
 `brew install git`
 
-Posteriormente lanzar el comando de ansible:
+Posteriormente lanzar el comando de ansible, estando ubicado en la ruta donde descargaste el repo:
 `ansible-playbook -i localhost, -c local mac/install-galaxy.yml --ask-become-pass`
 Este comando te preguntará la constraseña de la maquina.
 ----
@@ -19,7 +19,14 @@ requiere instalado chocolatey en la maquina windows, se hace abriendo una ventan
 Luego instala git para descargar el repositorio:
 `choco install git.install -n`
 
-Posteriormente lanzar el comando de ansible:
+Descarga la última versión de python y la instalas.
+`https://www.python.org/downloads`
+Asegurate de hacer check en la opción para que python se cargue en el PATH
+
+Instala ansible:
+`pip install ansible`
+
+Posteriormente lanzar el comando de ansible, estando ubicado en la ruta donde descargaste el repo:
 `ansible-playbook -i localhost, -c local windows/install-galaxy.yml`
 
 ----
