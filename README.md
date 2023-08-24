@@ -1,6 +1,6 @@
 # pre-requisitos
 
-## mac
+## MacOS
 requiere que home brew se encuentre instalado en la mac
 
 luego instalar ansible usando `brew install ansible`
@@ -12,7 +12,10 @@ Posteriormente lanzar el comando de ansible, estando ubicado en la ruta donde de
 `ansible-playbook -i localhost, -c local mac/install-galaxy.yml --ask-become-pass`
 Este comando te preguntará la constraseña de la maquina.
 ----
-## windows
+## Linux
+
+----
+## Windows
 requiere instalado chocolatey en la maquina windows, se hace abriendo una ventana de PowerShell como administrador y lanzar el siguiente comando:
 `Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))`
 
@@ -20,8 +23,12 @@ Luego instala git para descargar el repositorio:
 `choco install git.install -n`
 
 Ansible no funciona correctamente en Windows, entonces creamos un script de PowerShell para configurar la maquina, para ejcutarlo, abres una consola de PowerShell con permisos de administrador, te ubicas en la ruta donde descargaste el repo y ejecutas:
+`Set-ExecutionPolicy Unrestricted`
+Das `Sí a todo`
+Esto te dará permisos para ejcutar scripts powershell.
 
-`.\installPowerShell.ps1`
+Luego lanzas
+`.\windows\installPowerShell.ps1`
 
 ----
 # Si te pide Ansible Galaxy
