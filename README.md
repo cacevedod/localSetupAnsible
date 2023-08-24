@@ -20,3 +20,4 @@ ansible-galaxy collection install community.general
 ```
 
 luego lanzar el comando: `ansible-playbook -i localhost, -c local mac/install-galaxy.yml --ask-become-pass`
+Este comando te preguntará la constraseña de la maquina.

@@ -41,7 +41,6 @@
       become: false
       command: git config --global alias.ck checkout
 
-
     - name: Generar claves SSH
       become: false
       shell: >
@@ -57,70 +56,6 @@
     - name: Imprimir clave pública SSH
       debug:
         var: public_key.stdout
-
-    - name: Instalar NVM
-      become: false
-      homebrew:
-        name: nvm
-
-    - name: Configurar NVM en el archivo de perfil (zsh)
-      become: false
-      lineinfile:
-        dest: ~/.zshrc
-        line: 'export NVM_DIR="$HOME/.nvm"'
-        state: present
-
-    - name: Cargar NVM en el archivo de perfil (zsh)
-      become: false
-      lineinfile:
-        dest: ~/.zshrc
-        line: 'source $(brew --prefix nvm)/nvm.sh'
-        state: present
-
-    - name: Instalar jEnv
-      become: false
-      homebrew:
-        name: jenv
-
-    - name: Configurar jEnv en el archivo de perfil (zsh)
-      become: false
-      lineinfile:
-        dest: ~/.zshrc
-        line: 'eval "$(jenv init -)"'
-        state: present
-
-    - name: Instalar Java (OpenJDK)
-      become: false
-      homebrew:
-        name: openjdk@11
-
-    - name: symlink Java (OpenJDK)
-      become: true
-      command: ln -sfn /opt/homebrew/opt/openjdk@11/libexec/openjdk.jdk /Library/Java/JavaVirtualMachines/openjdk-11.jdk
-
-    - name: Configurar OpenJDK en el archivo de perfil (zsh)
-      become: false
-      lineinfile:
-        dest: ~/.zshrc
-        line: 'export PATH="/opt/homebrew/opt/openjdk@11/bin:$PATH"'
-        state: present
-
-    - name: Configurar para compiladores
-      become: false
-      lineinfile:
-        dest: ~/.zshrc
-        line: 'export CPPFLAGS="-I/opt/homebrew/opt/openjdk@11/include"'
-        state: present
-
-    - name: Configurar Java con jEnv
-      become: false
-      command: jenv add /Library/Java/JavaVirtualMachines/openjdk-11.jdk/Contents/Home
-      args:
-        creates: "{{ jenv_path }}/versions/11.0"
-
-    - name: Establecer versión de Java por defecto
-      become: false
-      command: jenv global 11.0
 
     - name: Verificar si Oh My Zsh está instalado
       become: false
@@ -146,14 +81,114 @@
       become: false
       shell: source ~/.zshrc
 
+    - name: Instalar NVM
+      become: false
+      homebrew:
+        name: nvm
+
+    - name: Crear directorio ~/.nvm
+      file:
+        path: "~/.nvm"
+        state: directory
+
+    - name: Cargar NVM en (zsh)
+      become: false
+      lineinfile:
+        dest: ~/.zshrc
+        line: 'source ~/.nvm/nvm.sh'
+        state: present
+
+    - name: Cargar NVM en el archivo de perfil (zsh)
+      become: false
+      lineinfile:
+        dest: ~/.zshrc
+        line: 'export NVM_DIR="$HOME/.nvm"'
+        state: present
+
+    - name: Cargar NVM en el archivo de perfil (zsh) 2
+      become: false
+      lineinfile:
+        dest: ~/.zshrc
+        line: '  [ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"  # This loads nvm'
+        state: present
+    
+    - name: Cargar NVM en el archivo de perfil (zsh) 3
+      become: false
+      lineinfile:
+        dest: ~/.zshrc
+        line: '  [ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ] && \. "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"  # This loads nvm bash_completion'
+        state: present
+
+    - name: Instalar jEnv
+      become: false
+      homebrew:
+        name: jenv
+
+    - name: Configurar jEnv en el archivo de perfil (zsh)
+      become: false
+      lineinfile:
+        dest: ~/.zshrc
+        line: 'eval "$(jenv init -)"'
+        state: present
+
+    - name: Instalar Java (OpenJDK)
+      become: false
+      homebrew:
+        name: openjdk@11
+
+    - name: symlink Java (OpenJDK)
+      become: true
+      command: ln -sfn /opt/homebrew/opt/openjdk@11/libexec/openjdk.jdk /Library/Java/JavaVirtualMachines/openjdk-11.jdk
+
+    - name: Configurar Java con jEnv
+      become: false
+      command: jenv add /Library/Java/JavaVirtualMachines/openjdk-11.jdk/Contents/Home
+      args:
+        creates: "{{ jenv_path }}/versions/11.0"
+
+    - name: Configurar JAVA_HOME en el archivo de perfil (zsh)
+      become: false
+      lineinfile:
+        dest: ~/.zshrc
+        line: 'export JAVA_HOME="$HOME/.jenv/versions/$(jenv version-name)"'
+        state: present
+
+    - name: Establecer versión de Java por defecto
+      become: false
+      command: jenv global 11.0
+
+    - name: Cargar configuración zsh
+      become: false
+      shell: source ~/.zshrc
+
+    - name: Instalar Node.js usando Homebrew
+      homebrew:
+        name: node
+        state: present
+
+    - name: Instalar pyenv
+      become: false
+      homebrew:
+        name: pyenv
+
+    - name: Verificar si Python 3.10 ya está instalado
+      stat:
+        path: ~/.pyenv/versions/3.10.12/bin/python
+      register: python_installed
+    
+    - name: instalar python 3
+      become: false
+      command: pyenv install 3.10
+      when: not python_installed.stat.exists
+
+    - name: Establecer Python 3.10 como global con pyenv
+      become: false
+      command: pyenv global 3.10
+
     - name: Instalar Docker Desktop
       become: false
       homebrew_cask:
         name: docker
-
-    - name: Cargar configuración zsh después de configurar alias
-      become: false
-      shell: source ~/.zshrc
 
     - name: Reiniciar Docker Desktop
       become: false
@@ -163,54 +198,6 @@
       become: false
       pause:
         minutes: 1
-
-    - name: Verificar si iTerm2 está instalado
-      become: false
-      stat:
-        path: /Applications/iTerm.app
-      register: iterm2_installed
-
-    - name: Instalar iTerm2
-      become: true
-      homebrew_cask:
-        name: iterm2
-      when: not iterm2_installed.stat.exists
-
-    - name: Descargar tmux config
-      become: false
-      get_url:
-        url: https://raw.githubusercontent.com/gpakosz/.tmux/master/.tmux.conf
-        dest: ~/.tmux.conf
-        mode: '0644'
-        validate_certs: no
-
-    - name: Verificar si tmux está instalado
-      become: false
-      stat:
-        path: /usr/local/bin/tmux
-      register: tmux_installed
-
-    - name: Instalar tmux
-      become: false
-      homebrew:
-        name: tmux
-      when: not tmux_installed.stat.exists
-
-    - name: Verificar si la sesión de tmux 'default' ya existe
-      become: false
-      command: tmux has-session -t default
-      register: tmux_session_check
-      ignore_errors: true
-
-    - name: Iniciar nueva sesión de tmux si 'default' no existe
-      become: false
-      command: tmux new-session -d -s default
-      when: tmux_session_check.rc != 0
-
-
-    - name: Cargar configuración tmux
-      become: false
-      shell: tmux source-file ~/.tmux.conf
 
     - name: Verificar si Google Chrome está instalado
       become: false
@@ -248,17 +235,17 @@
         name: intellij-idea-ce
       when: not intellij_installed.stat.exists
 
-    - name: Verificar si Appium 2 está instalado
-      become: false
-      stat:
-        path: /Applications/Appium.app
-      register: appium2_installed
-
     - name: Instalar Appium 2
       become: false
-      homebrew_cask:
-        name: appium
-      when: not appium2_installed.stat.exists
+      command: npm install -g appium@next
+
+    - name: Instalar xcuitest
+      become: false
+      command: appium driver install xcuitest
+
+    - name: Instalar uiautomator2
+      become: false
+      command: appium driver install uiautomator2
 
     - name: Verificar si Appium Inspector está instalado
       become: false
@@ -275,7 +262,7 @@
     - name: Verificar si Minikube está instalado
       become: false
       stat:
-        path: /usr/local/bin/minikube
+        path: /opt/homebrew/bin/minikube
       register: minikube_installed
 
     - name: Instalar Minikube
@@ -295,4 +282,37 @@
         name: awscli
         state: latest
       when: awscli_installed.rc != 0
+
+    - name: Verificar si warp está instalado
+      become: false
+      stat:
+        path: /Applications/Warp.app
+      register: warp_installed
+
+    - name: Instalar warp
+      become: false
+      homebrew_cask:
+        name: warp
+      when: not warp_installed.stat.exists
+
+    # herramienta para instalar cosas de la tienda mac desde comandos
+    - name: Instalar mas
+      become: false
+      homebrew:
+        name: mas
+
+    - name: Verificar si trello está instalado
+      become: false
+      stat:
+        path: /Applications/Trello.app
+      register: trello_installed
+
+    - name: Instalar trello
+      become: false
+      command: mas lucky trello
+      when: not trello_installed.stat.exists
+
+    - name: Cargar configuración zsh después de configurar
+      become: false
+      shell: source ~/.zshrc
 
