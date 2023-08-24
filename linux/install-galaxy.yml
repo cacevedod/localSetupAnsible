@@ -59,12 +59,6 @@
         path: ~/.oh-my-zsh
       register: ohmyzsh_installed
 
-    - name: Instalar Oh My Zsh
-      become: true
-      shell: >
-        apt-get install zshsudo apt-get install git-core
-      when: not ohmyzsh_installed.stat.exists
-
     - name: Instalar Oh My Zsh 2
       become: true
       shell: >
