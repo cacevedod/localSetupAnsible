@@ -62,9 +62,7 @@
     - name: Instalar Oh My Zsh
       become: true
       shell: >
-        apt update
-        apt install zsh
-        chsh -s $(which zsh)
+        apt update && apt install zsh && chsh -s $(which zsh)
       when: not ohmyzsh_installed.stat.exists
 
     - name: Configurar plugins en el archivo de perfil de Oh My Zsh (zsh)
