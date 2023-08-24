@@ -11,6 +11,11 @@ Luego instala git para descargar el repositorio:
 Posteriormente lanzar el comando de ansible, estando ubicado en la ruta donde descargaste el repo:
 `ansible-playbook -i localhost, -c local mac/install-galaxy.yml --ask-become-pass`
 Este comando te preguntará la constraseña de la maquina.
+
+### Queda faltando para instalación y configuración manual:
+- Alfred
+- Urban VPN Desktop
+- warp terminal
 ----
 ## Linux
 

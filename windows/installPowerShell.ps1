@@ -27,6 +27,9 @@ choco install openjdk11 -y
 $env:PYENV = "C:\ProgramData\chocolatey\lib\pyenv\tools\pyenv-win"
 $env:Path = "$env:PYENV\bin;$env:Path"
 
+# Instalar o actualizar wsl que se requiere para docker
+wsl --update
+
 # Instalar Docker Desktop
 choco install docker-desktop -y
 
@@ -57,6 +60,12 @@ choco install putty -y
 
 # Instalar intellij
 choco install intellijidea-community -y
+
+# Instalar postman
+choco install postman -y
+
+# Instalar android studio
+choco install androidstudio -y
 
 Write-Host "¡La instalación y configuración en Windows ha finalizado!"
 

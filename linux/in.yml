@@ -1,5 +1,4 @@
----
-- name: Instalar herramientas en Mac con Homebrew y configurar Oh My Zsh
+- name: Instalar herramientas en Linux con APT y configurar Zsh
   hosts: localhost
   gather_facts: false
 
@@ -7,20 +6,22 @@
     jenv_path: ~/.jenv
 
   tasks:
-    - name: Instalar Xcode Command Line Tools
+    - name: Instalar paquetes necesarios
       become: true
-      command: xcode-select --install
-      args:
-        creates: /Library/Developer/CommandLineTools/usr/bin/git
+      apt:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - git
+        - curl
+        - wget
+        - unzip
+        - software-properties-common
 
-    - name: Esperar a que se instalen las herramientas de línea de comandos de Xcode
-      become: false
-      pause:
-        seconds: 10
-
-    - name: Actualizar Homebrew
-      become: false
-      command: brew update
+    - name: Actualizar paquetes
+      become: true
+      apt:
+        update_cache: yes
       changed_when: false
 
     - name: Git branch por defecto main
@@ -61,7 +62,7 @@
     - name: Instalar Oh My Zsh
       become: true
       shell: >
-        sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+        sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
       when: not ohmyzsh_installed.stat.exists
 
     - name: Configurar plugins en el archivo de perfil de Oh My Zsh (zsh)
@@ -78,20 +79,7 @@
 
     - name: Instalar NVM
       become: false
-      homebrew:
-        name: nvm
-
-    - name: Crear directorio ~/.nvm
-      file:
-        path: "~/.nvm"
-        state: directory
-
-    - name: Cargar NVM en (zsh)
-      become: false
-      lineinfile:
-        dest: ~/.zshrc
-        line: 'source ~/.nvm/nvm.sh'
-        state: present
+      command: curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
 
     - name: Cargar NVM en el archivo de perfil (zsh)
       become: false
@@ -104,20 +92,19 @@
       become: false
       lineinfile:
         dest: ~/.zshrc
-        line: '  [ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"  # This loads nvm'
+        line: '  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm'
         state: present
-    
+
     - name: Cargar NVM en el archivo de perfil (zsh) 3
       become: false
       lineinfile:
         dest: ~/.zshrc
-        line: '  [ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ] && \. "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"  # This loads nvm bash_completion'
+        line: '  [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion'
         state: present
 
     - name: Instalar jEnv
       become: false
-      homebrew:
-        name: jenv
+      command: git clone https://github.com/jenv/jenv.git ~/.jenv
 
     - name: Configurar jEnv en el archivo de perfil (zsh)
       become: false
@@ -127,17 +114,14 @@
         state: present
 
     - name: Instalar Java (OpenJDK)
-      become: false
-      homebrew:
-        name: openjdk@11
-
-    - name: symlink Java (OpenJDK)
       become: true
-      command: ln -sfn /opt/homebrew/opt/openjdk@11/libexec/openjdk.jdk /Library/Java/JavaVirtualMachines/openjdk-11.jdk
+      apt:
+        name: openjdk-11-jdk
+        state: present
 
     - name: Configurar Java con jEnv
       become: false
-      command: jenv add /Library/Java/JavaVirtualMachines/openjdk-11.jdk/Contents/Home
+      command: jenv add /usr/lib/jvm/java-11-openjdk-amd64
       args:
         creates: "{{ jenv_path }}/versions/11.0"
 
@@ -156,22 +140,21 @@
       become: false
       shell: source ~/.zshrc
 
-    - name: Instalar Node.js usando Homebrew
-      homebrew:
-        name: node
-        state: present
+    - name: Instalar Node.js usando NVM
+      become: false
+      command: nvm install node
 
     - name: Instalar pyenv
       become: false
-      homebrew:
-        name: pyenv
+      command: git clone https://github.com/pyenv/pyenv.git ~/.pyenv
 
     - name: Verificar si Python 3.10 ya está instalado
+      become: false
       stat:
         path: ~/.pyenv/versions/3.10.12/bin/python
       register: python_installed
     
-    - name: instalar python 3
+    - name: Instalar Python 3.10
       become: false
       command: pyenv install 3.10
       when: not python_installed.stat.exists
@@ -180,55 +163,44 @@
       become: false
       command: pyenv global 3.10
 
-    - name: Instalar Docker Desktop
+    - name: Instalar Docker
+      become: true
+      apt:
+        name: docker.io
+        state: present
+
+    - name: Reiniciar Docker
       become: false
-      homebrew_cask:
+      service:
         name: docker
-
-    - name: Reiniciar Docker Desktop
-      become: false
-      command: osascript -e 'quit app "Docker"'
-
-    - name: Esperar a que Docker Desktop se reinicie
-      become: false
-      pause:
-        minutes: 1
+        state: restarted
 
     - name: Verificar si Google Chrome está instalado
       become: false
       stat:
-        path: /Applications/Google Chrome.app
+        path: /usr/bin/google-chrome
       register: chrome_installed
 
     - name: Instalar Google Chrome
-      become: false
-      homebrew_cask:
-        name: google-chrome
+      become: true
+      apt:
+        name: google-chrome-stable
+        state: present
       when: not chrome_installed.stat.exists
 
     - name: Verificar si Visual Studio Code está instalado
       become: false
       stat:
-        path: /Applications/Visual Studio Code.app
+        path: /usr/share/code
       register: vscode_installed
 
     - name: Instalar Visual Studio Code
-      become: false
-      homebrew_cask:
-        name: visual-studio-code
+      become: true
+      snap:
+        name: code
+        channel: stable
+        classic: yes
       when: not vscode_installed.stat.exists
-
-    - name: Verificar si IntelliJ IDEA Community Edition está instalado
-      become: false
-      stat:
-        path: /Applications/IntelliJ IDEA CE.app
-      register: intellij_installed
-
-    - name: Instalar IntelliJ IDEA Community Edition
-      become: false
-      homebrew_cask:
-        name: intellij-idea-ce
-      when: not intellij_installed.stat.exists
 
     - name: Instalar Appium 2
       become: false
@@ -244,94 +216,83 @@
       command: appium driver install uiautomator2
       ignore_errors: true
 
-    - name: Verificar si Appium Inspector está instalado
-      become: false
-      stat:
-        path: /Applications/Appium Inspector.app
-      register: appium_inspector_installed
-
     - name: Instalar Appium Inspector
-      become: false
-      homebrew_cask:
-        name: appium-inspector
+      become: true
+      apt:
+        name: appium-desktop
+        state: present
       when: not appium_inspector_installed.stat.exists
 
     - name: Verificar si Minikube está instalado
       become: false
       stat:
-        path: /opt/homebrew/bin/minikube
+        path: /usr/local/bin/minikube
       register: minikube_installed
 
     - name: Instalar Minikube
-      become: false
-      command: brew install minikube
+      become: true
+      command: curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 && chmod +x minikube-linux-amd64 && sudo mv minikube-linux-amd64 /usr/local/bin/minikube
       when: not minikube_installed.stat.exists
 
     - name: Verificar si AWS CLI está instalado
       become: false
-      shell: brew list | grep -w "awscli"
+      command: aws --version
       register: awscli_installed
       ignore_errors: true
 
-    - name: Instalar AWS CLI utilizando Homebrew
+    - name: Instalar AWS CLI
       become: true
-      community.general.homebrew:
-        name: awscli
-        state: latest
+      command: curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && unzip awscliv2.zip && sudo ./aws/install
       when: awscli_installed.rc != 0
 
     - name: Verificar si warp está instalado
       become: false
       stat:
-        path: /Applications/Warp.app
+        path: /usr/local/bin/warp
       register: warp_installed
 
     - name: Instalar warp
-      become: false
-      homebrew_cask:
-        name: warp
+      become: true
+      command: curl -fsSL https://install.warp.dev | sh
       when: not warp_installed.stat.exists
 
-    - name: Verificar si androidStudio está instalado
+    # Resto de las tareas para la instalación de otras herramientas
+
+    - name: Verificar si Android Studio está instalado
       become: false
       stat:
-        path: /Applications/Android Studio.app
+        path: /opt/android-studio/bin/studio.sh
       register: android_installed
 
     - name: Instalar Android Studio
-      become: false
-      homebrew_cask:
-        name: android-studio
+      become: true
+      command: snap install android-studio --classic
       when: not android_installed.stat.exists
 
-    - name: Verificar si postman está instalado
+    - name: Verificar si Postman está instalado
       become: false
       stat:
-        path: /Applications/Postman.app
+        path: /opt/Postman/Postman
       register: postman_installed
 
-    - name: Instalar postman
-      become: false
-      homebrew_cask:
+    - name: Instalar Postman
+      become: true
+      snap:
         name: postman
+        classic: yes
       when: not postman_installed.stat.exists
 
-    # herramienta para instalar cosas de la tienda mac desde comandos
-    - name: Instalar mas
-      become: false
-      homebrew:
-        name: mas
-
-    - name: Verificar si trello está instalado
+    - name: Verificar si Trello está instalado
       become: false
       stat:
-        path: /Applications/Trello.app
+        path: /usr/local/bin/trello
       register: trello_installed
 
-    - name: Instalar trello
-      become: false
-      command: mas lucky trello
+    - name: Instalar Trello
+      become: true
+      command: snap install trello
       when: not trello_installed.stat.exists
+
 
     - name: Cargar configuración zsh después de configurar
       become: false
@@ -339,5 +300,4 @@
 
     - name: Mostrar mensaje final
       debug:
-        msg: "¡La instalación y configuración en Mac ha finalizado!"
-
+        msg: "¡La instalación y configuración en Linux ha finalizado!"
