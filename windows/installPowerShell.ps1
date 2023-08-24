@@ -1,8 +1,5 @@
 # Instalar herramientas en Windows y configurar
 
-# Instalar Git
-choco install git -y
-
 # Configurar Git branch por defecto main
 git config --global init.defaultBranch main
 
@@ -16,13 +13,6 @@ choco install nodejs-lts -y
 # Instalar Python 3.10
 if (-Not (Test-Path $env:ProgramFiles\Python310\python.exe)) {
     choco install python --version 3.10.1 -y
-}
-
-# Agregar Python 3.10 al PATH
-$pythonPath = "$env:ProgramFiles\Python310"
-if ($env:Path -notlike "*$pythonPath*") {
-    $newPath = "$pythonPath;$env:Path"
-    [Environment]::SetEnvironmentVariable("Path", $newPath, [EnvironmentVariableTarget]::Machine)
 }
 
 # Instalar NVM para Windows
@@ -42,9 +32,6 @@ pyenv.bat global 11
 
 # Instalar Docker Desktop
 choco install docker-desktop -y
-
-# Esperar a que Docker Desktop se inicie
-Start-Sleep -Seconds 30 # Ajusta este tiempo si es necesario
 
 # Instalar Google Chrome
 if (-Not (Test-Path "$env:ProgramFiles\Google\Chrome\Application\chrome.exe")) {

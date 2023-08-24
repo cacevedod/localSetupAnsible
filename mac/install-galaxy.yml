@@ -23,11 +23,6 @@
       command: brew update
       changed_when: false
 
-    - name: Instalar Git
-      become: false
-      homebrew:
-        name: git
-
     - name: Git branch por defecto main
       become: false
       command: git config --global init.defaultBranch main
