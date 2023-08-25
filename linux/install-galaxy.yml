@@ -299,7 +299,7 @@
 
     - name: Determinar la arquitectura del sistema
       set_fact:
-        architecture: "{{ ansible_architecture }}"
+        architecture: "{{ ansible_userspace_architecture | default('amd64') }}"
 
     - name: Descargar URL del paquete de Google Chrome
       set_fact:
