@@ -297,15 +297,23 @@
         path: /usr/bin/google-chrome
       register: chrome_installed
 
-    - name: Instalar Google Chrome
-      become: true
-      shell: wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-      when: not chrome_installed.stat.exists
+    - name: Determinar la arquitectura del sistema
+      set_fact:
+        architecture: "{{ ansible_architecture }}"
 
-    - name: Instalar Google Chrome 2
-      become: true
-      shell: dpkg -i google-chrome-stable_current_amd64.deb
-      when: not chrome_installed.stat.exists
+    - name: Descargar URL del paquete de Google Chrome
+      set_fact:
+        google_chrome_url: "https://dl.google.com/linux/direct/google-chrome-stable_current_{{ architecture }}.deb"
+
+    - name: Descargar paquete de Google Chrome
+      get_url:
+        url: "{{ google_chrome_url }}"
+        dest: "/tmp/google-chrome.deb"
+
+    - name: Instalar Google Chrome
+      become: yes
+      apt:
+        deb: "/tmp/google-chrome.deb"
 
     - name: Verificar si Visual Studio Code está instalado
       become: false
