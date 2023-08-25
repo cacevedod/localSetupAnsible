@@ -263,11 +263,15 @@
         paths: "$HOME/.pyenv/versions"
         patterns: "*"
       register: python_installed
+
+    - name: Mostrar los directorios encontrados
+      debug:
+        var: python_installed
     
     - name: Instalar Python 3.10
       become: false
       command: pyenv install 3.10
-      when: python_installed.matched_files | length == 0
+      when: python_installed.files | length == 0
 
     - name: Establecer Python 3.10 como global con pyenv
       become: false
