@@ -18,6 +18,13 @@
         - unzip
         - software-properties-common
         - build-essential
+        - zlib1g-dev
+        - libffi-dev
+        - libssl-dev
+        - liblzma-dev
+        - libbz2-dev
+        - libreadline-dev
+        - libsqlite3-dev
 
     - name: Actualizar paquetes
       become: true
@@ -245,16 +252,22 @@
       shell: nvm install node
       when: not node_installed.stat.exists
 
+    - name: Actualizar pyenv
+      become: true
+      shell: pyenv update
+      when: pyenv_installed.stat.exists
+    
     - name: Verificar si Python 3.10 ya está instalado
       become: false
-      stat:
-        path: ~/.pyenv/versions/3.10.12/bin/python
+      find:
+        paths: "{{ ansible_env.HOME }}/.pyenv/versions"
+        patterns: "*"
       register: python_installed
     
     - name: Instalar Python 3.10
       become: false
       command: pyenv install 3.10
-      when: not python_installed.stat.exists
+      when: python_installed.matched_files | length = 0
 
     - name: Establecer Python 3.10 como global con pyenv
       become: false

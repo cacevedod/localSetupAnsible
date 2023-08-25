@@ -191,14 +191,15 @@
         name: pyenv
 
     - name: Verificar si Python 3.10 ya está instalado
-      stat:
-        path: ~/.pyenv/versions/3.10.12/bin/python
+      find:
+        paths: "{{ ansible_env.HOME }}/.pyenv/versions"
+        patterns: "*"
       register: python_installed
     
     - name: instalar python 3
       become: false
       command: pyenv install 3.10
-      when: not python_installed.stat.exists
+      when: python_installed.matched_files | length = 0
 
     - name: Establecer Python 3.10 como global con pyenv
       become: false
