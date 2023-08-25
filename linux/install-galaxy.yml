@@ -233,9 +233,16 @@
       become: false
       shell: . ~/.nvm/nvm.sh
 
+    - name: Verificar si node ya está instalado
+      become: false
+      stat:
+        path: /root/.nvm/versions/node
+      register: node_installed
+
     - name: Instalar Node.js usando NVM
       become: false
       shell: nvm install node
+      when: not node_installed.stat.exists
 
     - name: Verificar si Python 3.10 ya está instalado
       become: false
