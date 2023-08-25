@@ -221,7 +221,7 @@
 
     - name: Configurar Java con jEnv
       become: false
-      command: jenv add /usr/lib/jvm/java-11-openjdk-amd64
+      command: jenv add /usr/lib/jvm/java-11-openjdk-arm64/
       args:
         creates: "{{ jenv_path }}/versions/11.0"
 
