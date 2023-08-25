@@ -231,7 +231,7 @@
 
     - name: Instalar Node.js usando NVM
       become: false
-      command: nvm install node
+      shell: nvm install node
 
     - name: Verificar si Python 3.10 ya está instalado
       become: false
