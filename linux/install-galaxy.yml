@@ -115,9 +115,7 @@
 
     - name: Instalar NVM
       become: true
-      apt:
-        name: nvm
-        state: present
+      shell: curl https://raw.githubusercontent.com/creationix/nvm/master/install.sh | bash
 
     - name: Cargar NVM en el archivo de perfil (zsh)
       become: false
@@ -142,11 +140,16 @@
 
     - name: Instalar jEnv
       become: true
-      apt:
-        name: jenv
-        state: present
+      shell: git clone https://github.com/jenv/jenv.git ~/.jenv
 
     - name: Configurar jEnv en el archivo de perfil (zsh)
+      become: false
+      lineinfile:
+        dest: ~/.zshrc
+        line: 'export PATH="$HOME/.jenv/bin:$PATH"'
+        state: present
+
+    - name: Configurar jEnv en el archivo de perfil (zsh) 2
       become: false
       lineinfile:
         dest: ~/.zshrc
@@ -178,7 +181,7 @@
 
     - name: Cargar configuración zsh
       become: false
-      shell: source ~/.zshrc
+      shell: "zsh ~/.zshrc"
 
     - name: Instalar Node.js usando NVM
       become: false
@@ -186,8 +189,27 @@
 
     - name: Instalar pyenv
       become: true
-      apt:
-        name: pyenv
+      shell: curl https://pyenv.run | bash
+
+    - name: Configurar pyenv en el archivo de perfil (zsh)
+      become: false
+      lineinfile:
+        dest: ~/.zshrc
+        line: 'export PATH="$HOME/.pyenv/bin:$PATH"'
+        state: present
+
+    - name: Configurar pyenv en el archivo de perfil (zsh) 2
+      become: false
+      lineinfile:
+        dest: ~/.zshrc
+        line: 'eval "$(pyenv init --path)"'
+        state: present
+
+    - name: Configurar pyenv en el archivo de perfil (zsh) 3
+      become: false
+      lineinfile:
+        dest: ~/.zshrc
+        line: 'eval "$(pyenv virtualenv-init -)"'
         state: present
 
     - name: Verificar si Python 3.10 ya está instalado
@@ -330,9 +352,9 @@
       when: not trello_installed.stat.exists
 
 
-    - name: Cargar configuración zsh después de configurar
+    - name: Cargar configuración zsh despues de configurar
       become: false
-      shell: source ~/.zshrc
+      shell: "zsh ~/.zshrc"
 
     - name: Mostrar mensaje final
       debug:
