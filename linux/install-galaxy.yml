@@ -162,30 +162,12 @@
         name: openjdk-11-jdk
         state: present
 
-    - name: Configurar Java con jEnv
-      become: false
-      command: jenv add /usr/lib/jvm/java-11-openjdk-amd64
-      args:
-        creates: "{{ jenv_path }}/versions/11.0"
-
     - name: Configurar JAVA_HOME en el archivo de perfil (zsh)
       become: false
       lineinfile:
         dest: ~/.zshrc
         line: 'export JAVA_HOME="$HOME/.jenv/versions/$(jenv version-name)"'
         state: present
-
-    - name: Establecer versión de Java por defecto
-      become: false
-      command: jenv global 11.0
-
-    - name: Cargar configuración zsh
-      become: false
-      shell: "zsh ~/.zshrc"
-
-    - name: Instalar Node.js usando NVM
-      become: false
-      command: nvm install node
 
     - name: Instalar pyenv
       become: true
@@ -211,6 +193,24 @@
         dest: ~/.zshrc
         line: 'eval "$(pyenv virtualenv-init -)"'
         state: present
+
+    - name: Cargar configuración zsh
+      become: false
+      shell: "zsh ~/.zshrc"
+
+    - name: Configurar Java con jEnv
+      become: false
+      command: jenv add /usr/lib/jvm/java-11-openjdk-amd64
+      args:
+        creates: "{{ jenv_path }}/versions/11.0"
+
+    - name: Establecer versión de Java por defecto
+      become: false
+      command: jenv global 11.0
+
+    - name: Instalar Node.js usando NVM
+      become: false
+      command: nvm install node
 
     - name: Verificar si Python 3.10 ya está instalado
       become: false
