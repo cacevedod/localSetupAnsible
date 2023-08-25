@@ -113,9 +113,16 @@
       become: false
       shell: "zsh ~/.zshrc"
 
+    - name: Verificar si NVM está instalado
+      become: false
+      stat:
+        path: $HOME/.nvm
+      register: nvm_installed
+
     - name: Instalar NVM
       become: true
       shell: curl https://raw.githubusercontent.com/creationix/nvm/master/install.sh | bash
+      when: not nvm_installed.stat.exists
 
     - name: Cargar NVM en el archivo de perfil (zsh)
       become: false
@@ -130,7 +137,7 @@
         dest: ~/.zshrc
         line: '  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm'
         state: present
-
+      
     - name: Cargar NVM en el archivo de perfil (zsh) 3
       become: false
       lineinfile:
@@ -138,9 +145,16 @@
         line: '  [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion'
         state: present
 
+    - name: Verificar si jenv está instalado
+      become: false
+      stat:
+        path: $HOME/.jenv
+      register: jenv_installed
+
     - name: Instalar jEnv
       become: true
       shell: git clone https://github.com/jenv/jenv.git ~/.jenv
+      when: not jenv_installed.stat.exists
 
     - name: Configurar jEnv en el archivo de perfil (zsh)
       become: false
@@ -169,9 +183,16 @@
         line: 'export JAVA_HOME="$HOME/.jenv/versions/$(jenv version-name)"'
         state: present
 
+    - name: Verificar si pyenv está instalado
+      become: false
+      stat:
+        path: $HOME/.nvm
+      register: pyenv_installed
+
     - name: Instalar pyenv
       become: true
       shell: curl https://pyenv.run | bash
+      when: not pyenv_installed.stat.exists
 
     - name: Configurar pyenv en el archivo de perfil (zsh)
       become: false
