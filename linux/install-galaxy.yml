@@ -25,6 +25,7 @@
         - libbz2-dev
         - libreadline-dev
         - libsqlite3-dev
+        - apt-transport-https
 
     - name: Actualizar paquetes
       become: true
@@ -297,9 +298,12 @@
 
     - name: Instalar Google Chrome
       become: true
-      apt:
-        name: google-chrome-stable
-        state: present
+      shell: wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+      when: not chrome_installed.stat.exists
+
+    - name: Instalar Google Chrome 2
+      become: true
+      shell: sudo dpkg -i google-chrome-stable_current_amd64.deb
       when: not chrome_installed.stat.exists
 
     - name: Verificar si Visual Studio Code está instalado

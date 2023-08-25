@@ -199,7 +199,7 @@
     - name: instalar python 3
       become: false
       command: pyenv install 3.10
-      when: python_installed.matched_files | length === 0
+      when: python_installed.files | length === 0
 
     - name: Establecer Python 3.10 como global con pyenv
       become: false
