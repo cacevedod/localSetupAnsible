@@ -304,7 +304,7 @@
 
     - name: Instalar Google Chrome 2
       become: true
-      shell: sudo dpkg -i google-chrome-stable_current_amd64.deb
+      shell: dpkg -i google-chrome-stable_current_amd64.deb
       when: not chrome_installed.stat.exists
 
     - name: Verificar si Visual Studio Code está instalado

@@ -193,7 +193,8 @@
     - name: Verificar si Python 3.10 ya está instalado
       find:
         paths: "$HOME/.pyenv/versions"
-        patterns: "*"
+        file_type: directory
+        recurse: no
       register: python_installed
     
     - name: instalar python 3
