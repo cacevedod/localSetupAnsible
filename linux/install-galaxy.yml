@@ -87,7 +87,7 @@
 
     - name: Cargar configuración zsh
       become: false
-      shell: source . ~/.zshrc
+      shell: source ~/.zshrc
 
     - name: Instalar NVM
       become: true
@@ -154,7 +154,7 @@
 
     - name: Cargar configuración zsh
       become: false
-      shell: source . ~/.zshrc
+      shell: source ~/.zshrc
 
     - name: Instalar Node.js usando NVM
       become: false
@@ -308,7 +308,7 @@
 
     - name: Cargar configuración zsh después de configurar
       become: false
-      shell: source . ~/.zshrc
+      shell: source ~/.zshrc
 
     - name: Mostrar mensaje final
       debug:
