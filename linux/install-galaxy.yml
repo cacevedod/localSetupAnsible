@@ -186,7 +186,7 @@
     - name: Verificar si pyenv está instalado
       become: false
       stat:
-        path: $HOME/.nvm
+        path: $HOME/.pyenv
       register: pyenv_installed
 
     - name: Instalar pyenv
