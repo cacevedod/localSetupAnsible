@@ -84,7 +84,7 @@
       become: false
       lineinfile:
         dest: ~/.zshrc
-        line: 'zstyle ':completion:*:*:docker:*' option-stacking yes'
+        line: 'zstyle ":completion:*:*:docker:*" option-stacking yes'
         state: present
       when: ohmyzsh_installed.stat.exists
 
@@ -92,7 +92,7 @@
       become: false
       lineinfile:
         dest: ~/.zshrc
-        line: 'zstyle ':completion:*:*:docker-*:*' option-stacking yes'
+        line: 'zstyle ":completion:*:*:docker-*:*" option-stacking yes'
         state: present
       when: ohmyzsh_installed.stat.exists
 
