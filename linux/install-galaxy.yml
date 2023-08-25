@@ -26,6 +26,7 @@
         - libreadline-dev
         - libsqlite3-dev
         - apt-transport-https
+        - snapd
 
     - name: Actualizar paquetes
       become: true
@@ -57,10 +58,6 @@
       become: false
       command: cat ~/.ssh/id_rsa.pub
       register: public_key
-
-    - name: Imprimir clave pública SSH
-      debug:
-        var: public_key.stdout
 
     - name: Verificar si Oh My Zsh está instalado
       become: false
@@ -410,7 +407,7 @@
     - name: Instalar Trello
       become: true
       snap:
-        name: trello
+        name: Trello Desktop
         classic: yes
       when: not trello_installed.stat.exists
 

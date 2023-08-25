@@ -330,6 +330,11 @@
         name: android-studio
       when: not android_installed.stat.exists
 
+    - name: Instalar vagrant
+      become: false
+      homebrew_cask:
+        name: vagrant
+
     - name: Verificar si postman está instalado
       become: false
       stat:

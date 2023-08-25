@@ -67,5 +67,11 @@ choco install postman -y
 # Instalar android studio
 choco install androidstudio -y
 
+# Instalar vagrant
+choco install vagrant -y
+
+# Instalar virtualBox
+choco install virtualbox -y
+
 Write-Host "¡La instalación y configuración en Windows ha finalizado!"
 

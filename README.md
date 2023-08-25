@@ -16,6 +16,7 @@ Este comando te preguntará la constraseña de la maquina.
 - Alfred
 - Urban VPN Desktop
 - warp terminal
+- VirtualBox (porque para m1 y m2 no corre OK)
 ----
 ## Linux Ubuntu
 Requiere que instales git en la maquina, abres una terminal y lanzas:
