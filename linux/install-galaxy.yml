@@ -17,6 +17,7 @@
         - wget
         - unzip
         - software-properties-common
+        - build-essential
 
     - name: Actualizar paquetes
       become: true
