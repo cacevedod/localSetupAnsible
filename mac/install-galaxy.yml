@@ -5,6 +5,8 @@
 
   vars:
     jenv_path: ~/.jenv
+    userGit: cacevedod
+    emailGit: cacevedod@devco.com.co
 
   tasks:
     - name: Instalar Xcode Command Line Tools
@@ -30,7 +32,7 @@
     - name: Git Configurar correo y usuario globalmente
       become: false
       shell: >
-        git config --global user.email "cacevedod@devco.com.co" && git config --global user.name "cacevedod"
+        git config --global user.email "{{emailGit}}" && git config --global user.name "{{userGit}}"
 
     - name: Crear alias global para 'git checkout' como 'git ck'
       become: false
@@ -39,7 +41,7 @@
     - name: Generar claves SSH
       become: false
       shell: >
-        ssh-keygen -t rsa -b 4096 -C "cacevedod@devco.com.co" -f ~/.ssh/id_rsa -N ''
+        ssh-keygen -t rsa -b 4096 -C "{{emailGit}}" -f ~/.ssh/id_rsa -N ''
       args:
         creates: ~/.ssh/id_rsa
 

@@ -4,6 +4,8 @@
 
   vars:
     jenv_path: $HOME/.jenv
+    userGit: cacevedod
+    emailGit: cacevedod@devco.com.co
 
   tasks:
     - name: Instalar paquetes necesarios
@@ -41,7 +43,7 @@
     - name: Git Configurar correo y usuario globalmente
       become: false
       shell: >
-        git config --global user.email "cacevedod@devco.com.co" && git config --global user.name "cacevedod"
+        git config --global user.email "{{emailGit}}" && git config --global user.name "{{userGit}}"
 
     - name: Crear alias global para 'git checkout' como 'git ck'
       become: false
@@ -50,7 +52,7 @@
     - name: Generar claves SSH
       become: false
       shell: >
-        ssh-keygen -t rsa -b 4096 -C "cacevedod@devco.com.co" -f $HOME/.ssh/id_rsa -N ''
+        ssh-keygen -t rsa -b 4096 -C "{{emailGit}}" -f $HOME/.ssh/id_rsa -N ''
       args:
         creates: $HOME/.ssh/id_rsa
 
@@ -287,30 +289,6 @@
       apt:
         name: neovim
         state: present
-
-    - name: Verificar si Google Chrome está instalado
-      become: false
-      stat:
-        path: /usr/bin/google-chrome
-      register: chrome_installed
-
-    - name: Determinar la arquitectura del sistema
-      set_fact:
-        architecture: "{{ ansible_userspace_architecture | default('amd64') }}"
-
-    - name: Descargar URL del paquete de Google Chrome
-      set_fact:
-        google_chrome_url: "https://dl.google.com/linux/direct/google-chrome-stable_current_{{ architecture }}.deb"
-
-    - name: Descargar paquete de Google Chrome
-      get_url:
-        url: "{{ google_chrome_url }}"
-        dest: "/tmp/google-chrome.deb"
-
-    - name: Instalar Google Chrome
-      become: yes
-      apt:
-        deb: "/tmp/google-chrome.deb"
 
     - name: Verificar si Visual Studio Code está instalado
       become: false

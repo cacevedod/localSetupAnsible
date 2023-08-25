@@ -9,8 +9,9 @@ Luego instala git para descargar el repositorio:
 `brew install git`
 
 Posteriormente lanzar el comando de ansible, estando ubicado en la ruta donde descargaste el repo:
-`ansible-playbook -i localhost, -c local mac/install-galaxy.yml --ask-become-pass`
+`ansible-playbook -i localhost, -c local mac/install-galaxy.yml -e "userGit=CAMBIAME emailGit=CAMBIAME" --ask-become-pass`
 Este comando te preguntará la constraseña de la maquina.
+Debes cambiar CAMBIAME por el valor que deseas usar
 
 ### Queda faltando para instalación y configuración manual:
 - Alfred
@@ -30,9 +31,11 @@ Instalas Ansible
 existe la posibilidad de que te pregunte por el area geografica y luego la ciudad, debes responder en cada una con `2` y `29` respectivamente.
 
 Descargas el repo en una ruta y luego en la terminal te ubicas en esta ruta para lanzar el siguiente comando:
-`ansible-playbook -i localhost, -c local linux/install-galaxy.yml --ask-become-pass`
+`ansible-playbook -i localhost, -c local linux/install-galaxy.yml -e "userGit=CAMBIAME emailGit=CAMBIAME" --ask-become-pass`
 Este comando te preguntará la constraseña de la maquina.
-
+Debes cambiar CAMBIAME por el valor que deseas usar
+### Queda faltando para instalación y configuración manual:
+- Chrome
 ----
 ## Windows
 requiere instalado chocolatey en la maquina windows, se hace abriendo una ventana de PowerShell como administrador y lanzar el siguiente comando:
