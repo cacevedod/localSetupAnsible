@@ -29,7 +29,7 @@ Instalas Ansible
 Te pregunta por el area geografica y luego la ciudad, debes responder en cada una con `2` y `29` respectivamente.
 
 Descargas el repo en una ruta y luego en la terminal te ubicas en esta ruta para lanzar el siguiente comando:
-`ansible-playbook -i localhost, -c local linux/install-galaxy.yml --ask-become-pass`
+`ansible-playbook -i localhost, -c local linux/install-galaxy.yml`
 
 ----
 ## Windows

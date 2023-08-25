@@ -59,10 +59,16 @@
         path: ~/.oh-my-zsh
       register: ohmyzsh_installed
 
+    - name: Instalar Oh My Zsh 1
+      become: true
+      shell: >
+        apt install zsh -y
+      when: not ohmyzsh_installed.stat.exists
+
     - name: Instalar Oh My Zsh 2
       become: true
       shell: >
-        wget https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh -O - | zsh
+        sh -c "$(wget https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh -O -)"
       when: not ohmyzsh_installed.stat.exists
 
     - name: Instalar Oh My Zsh 3
