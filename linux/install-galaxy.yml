@@ -135,14 +135,14 @@
       become: false
       lineinfile:
         dest: ~/.zshrc
-        line: '  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm'
+        line: '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm'
         state: present
       
     - name: Cargar NVM en el archivo de perfil (zsh) 3
       become: false
       lineinfile:
         dest: ~/.zshrc
-        line: '  [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion'
+        line: '[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion'
         state: present
 
     - name: Verificar si jenv está instalado
