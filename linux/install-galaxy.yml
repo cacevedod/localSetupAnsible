@@ -3,7 +3,7 @@
   gather_facts: false
 
   vars:
-    jenv_path: ~/.jenv
+    jenv_path: $HOME/.jenv
 
   tasks:
     - name: Instalar paquetes necesarios
@@ -50,19 +50,19 @@
     - name: Generar claves SSH
       become: false
       shell: >
-        ssh-keygen -t rsa -b 4096 -C "cacevedod@devco.com.co" -f ~/.ssh/id_rsa -N ''
+        ssh-keygen -t rsa -b 4096 -C "cacevedod@devco.com.co" -f $HOME/.ssh/id_rsa -N ''
       args:
-        creates: ~/.ssh/id_rsa
+        creates: $HOME/.ssh/id_rsa
 
     - name: Mostrar clave pública SSH
       become: false
-      command: cat ~/.ssh/id_rsa.pub
+      command: cat $HOME/.ssh/id_rsa.pub
       register: public_key
 
     - name: Verificar si Oh My Zsh está instalado
       become: false
       stat:
-        path: ~/.oh-my-zsh
+        path: $HOME/.oh-my-zsh
       register: ohmyzsh_installed
 
     - name: Instalar Oh My Zsh 1
@@ -86,7 +86,7 @@
     - name: Configurar plugins en el archivo de perfil de Oh My Zsh (zsh)
       become: false
       lineinfile:
-        dest: ~/.zshrc
+        dest: $HOME/.zshrc
         line: 'plugins=(git docker ansible terraform docker-compose brew)'
         state: present
       when: ohmyzsh_installed.stat.exists
@@ -94,7 +94,7 @@
     - name: Configurar plugins Tema Oh My Zsh (zsh)
       become: false
       lineinfile:
-        dest: ~/.zshrc
+        dest: $HOME/.zshrc
         line: 'ZSH_THEME="jaischeema"'
         state: present
       when: ohmyzsh_installed.stat.exists
@@ -102,7 +102,7 @@
     - name: Configurar completado docker 1
       become: false
       lineinfile:
-        dest: ~/.zshrc
+        dest: $HOME/.zshrc
         line: 'zstyle ":completion:*:*:docker:*" option-stacking yes'
         state: present
       when: ohmyzsh_installed.stat.exists
@@ -110,14 +110,14 @@
     - name: Configurar completado docker 2
       become: false
       lineinfile:
-        dest: ~/.zshrc
+        dest: $HOME/.zshrc
         line: 'zstyle ":completion:*:*:docker-*:*" option-stacking yes'
         state: present
       when: ohmyzsh_installed.stat.exists
 
     - name: Cargar configuración zsh
       become: false
-      shell: "zsh ~/.zshrc"
+      shell: source $HOME/.zshrc
 
     - name: Verificar si NVM está instalado
       become: false
@@ -133,21 +133,21 @@
     - name: Cargar NVM en el archivo de perfil (zsh)
       become: false
       lineinfile:
-        dest: ~/.zshrc
+        dest: $HOME/.zshrc
         line: 'export NVM_DIR="$HOME/.nvm"'
         state: present
 
     - name: Cargar NVM en el archivo de perfil (zsh) 2
       become: false
       lineinfile:
-        dest: ~/.zshrc
+        dest: $HOME/.zshrc
         line: '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm'
         state: present
       
     - name: Cargar NVM en el archivo de perfil (zsh) 3
       become: false
       lineinfile:
-        dest: ~/.zshrc
+        dest: $HOME/.zshrc
         line: '[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion'
         state: present
 
@@ -159,20 +159,20 @@
 
     - name: Instalar jEnv
       become: true
-      shell: git clone https://github.com/jenv/jenv.git ~/.jenv
+      shell: git clone https://github.com/jenv/jenv.git $HOME/.jenv
       when: not jenv_installed.stat.exists
 
     - name: Configurar jEnv en el archivo de perfil (zsh)
       become: false
       lineinfile:
-        dest: ~/.zshrc
+        dest: $HOME/.zshrc
         line: 'export PATH="$HOME/.jenv/bin:$PATH"'
         state: present
 
     - name: Configurar jEnv en el archivo de perfil (zsh) 2
       become: false
       lineinfile:
-        dest: ~/.zshrc
+        dest: $HOME/.zshrc
         line: 'eval "$(jenv init -)"'
         state: present
 
@@ -185,7 +185,7 @@
     - name: Configurar JAVA_HOME en el archivo de perfil (zsh)
       become: false
       lineinfile:
-        dest: ~/.zshrc
+        dest: $HOME/.zshrc
         line: 'export JAVA_HOME="$HOME/.jenv/versions/$(jenv version-name)"'
         state: present
 
@@ -203,27 +203,27 @@
     - name: Configurar pyenv en el archivo de perfil (zsh)
       become: false
       lineinfile:
-        dest: ~/.zshrc
+        dest: $HOME/.zshrc
         line: 'export PATH="$HOME/.pyenv/bin:$PATH"'
         state: present
 
     - name: Configurar pyenv en el archivo de perfil (zsh) 2
       become: false
       lineinfile:
-        dest: ~/.zshrc
+        dest: $HOME/.zshrc
         line: 'eval "$(pyenv init --path)"'
         state: present
 
     - name: Configurar pyenv en el archivo de perfil (zsh) 3
       become: false
       lineinfile:
-        dest: ~/.zshrc
+        dest: $HOME/.zshrc
         line: 'eval "$(pyenv virtualenv-init -)"'
         state: present
 
     - name: Cargar configuración zsh
       become: false
-      shell: "zsh ~/.zshrc"
+      shell: source $HOME/.zshrc
 
     - name: Configurar Java con jEnv
       become: false
@@ -237,7 +237,7 @@
 
     - name: Cargar NVM en el shell
       become: false
-      shell: . ~/.nvm/nvm.sh
+      shell: . $HOME/.nvm/nvm.sh
 
     - name: Verificar si node ya está instalado
       become: false
@@ -414,7 +414,7 @@
 
     - name: Cargar configuración zsh despues de configurar
       become: false
-      shell: "zsh ~/.zshrc"
+      shell: source $HOME/.zshrc
 
     - name: Mostrar mensaje final
       debug:
