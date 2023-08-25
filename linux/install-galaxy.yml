@@ -229,6 +229,10 @@
       become: false
       command: jenv global 11.0
 
+    - name: Cargar NVM en el shell
+      become: false
+      shell: . ~/.nvm/nvm.sh
+
     - name: Instalar Node.js usando NVM
       become: false
       shell: nvm install node
