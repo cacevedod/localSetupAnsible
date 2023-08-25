@@ -192,7 +192,7 @@
 
     - name: Verificar si Python 3.10 ya está instalado
       find:
-        paths: "{{ ansible_env.HOME }}/.pyenv/versions"
+        paths: "$HOME/.pyenv/versions"
         patterns: "*"
       register: python_installed
     
