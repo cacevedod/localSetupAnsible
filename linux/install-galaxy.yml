@@ -85,9 +85,33 @@
         state: present
       when: ohmyzsh_installed.stat.exists
 
+    - name: Configurar plugins Tema Oh My Zsh (zsh)
+      become: false
+      lineinfile:
+        dest: ~/.zshrc
+        line: 'ZSH_THEME="jaischeema"'
+        state: present
+      when: ohmyzsh_installed.stat.exists
+
+    - name: Configurar completado docker 1
+      become: false
+      lineinfile:
+        dest: ~/.zshrc
+        line: 'zstyle ':completion:*:*:docker:*' option-stacking yes'
+        state: present
+      when: ohmyzsh_installed.stat.exists
+
+    - name: Configurar completado docker 2
+      become: false
+      lineinfile:
+        dest: ~/.zshrc
+        line: 'zstyle ':completion:*:*:docker-*:*' option-stacking yes'
+        state: present
+      when: ohmyzsh_installed.stat.exists
+
     - name: Cargar configuración zsh
       become: false
-      shell: source ~/.zshrc
+      shell: "zsh ~/.zshrc"
 
     - name: Instalar NVM
       become: true
