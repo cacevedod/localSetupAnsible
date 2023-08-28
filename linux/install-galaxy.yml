@@ -64,7 +64,7 @@
     - name: Verificar si Oh My Zsh está instalado
       become: false
       stat:
-        path: $HOME/.oh-my-zsh
+        path: /root/.oh-my-zsh
       register: ohmyzsh_installed
 
     - name: Instalar Oh My Zsh 1
