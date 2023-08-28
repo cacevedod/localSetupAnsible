@@ -3,7 +3,7 @@
   gather_facts: false
 
   vars:
-    jenv_path: $HOME/.jenv
+    jenv_path: /root/.jenv
     userGit: cacevedod
     emailGit: cacevedod@devco.com.co
 
@@ -62,170 +62,170 @@
       register: public_key
 
     - name: Verificar si Oh My Zsh está instalado
-      become: false
+      become: true
       stat:
-        path: $HOME/.oh-my-zsh
+        path: /root/.oh-my-zsh
       register: ohmyzsh_installed
 
     - name: Instalar Oh My Zsh 1
-      become: false
+      become: true
       shell: >
         apt install zsh -y
       when: not ohmyzsh_installed.stat.exists
 
     - name: Instalar Oh My Zsh 2
-      become: false
+      become: true
       shell: >
         sh -c "$(wget https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh -O -)"
       when: not ohmyzsh_installed.stat.exists
 
     - name: Instalar Oh My Zsh 3
-      become: false
+      become: true
       shell: >
         chsh -s `which zsh`
       when: not ohmyzsh_installed.stat.exists
 
     - name: Configurar plugins en el archivo de perfil de Oh My Zsh (zsh)
-      become: false
+      become: true
       lineinfile:
-        dest: $HOME/.zshrc
+        dest: /root/.zshrc
         line: 'plugins=(git docker ansible terraform docker-compose brew)'
         state: present
       when: ohmyzsh_installed.stat.exists
 
     - name: Configurar plugins Tema Oh My Zsh (zsh)
-      become: false
+      become: true
       lineinfile:
-        dest: $HOME/.zshrc
+        dest: /root/.zshrc
         line: 'ZSH_THEME="jaischeema"'
         state: present
       when: ohmyzsh_installed.stat.exists
 
     - name: Configurar completado docker 1
-      become: false
+      become: true
       lineinfile:
-        dest: $HOME/.zshrc
+        dest: /root/.zshrc
         line: 'zstyle ":completion:*:*:docker:*" option-stacking yes'
         state: present
       when: ohmyzsh_installed.stat.exists
 
     - name: Configurar completado docker 2
-      become: false
+      become: true
       lineinfile:
-        dest: $HOME/.zshrc
+        dest: /root/.zshrc
         line: 'zstyle ":completion:*:*:docker-*:*" option-stacking yes'
         state: present
       when: ohmyzsh_installed.stat.exists
 
     - name: Cargar configuración zsh
-      become: false
-      shell: source $HOME/.zshrc
+      become: true
+      shell: source /root/.zshrc
 
     - name: Verificar si NVM está instalado
-      become: false
+      become: true
       stat:
-        path: $HOME/.nvm
+        path: /root/.nvm
       register: nvm_installed
 
     - name: Instalar NVM
-      become: false
+      become: true
       shell: curl https://raw.githubusercontent.com/creationix/nvm/master/install.sh | bash
       when: not nvm_installed.stat.exists
 
     - name: Cargar NVM en el archivo de perfil (zsh)
-      become: false
+      become: true
       lineinfile:
-        dest: $HOME/.zshrc
-        line: 'export NVM_DIR="$HOME/.nvm"'
+        dest: /root/.zshrc
+        line: 'export NVM_DIR="/root/.nvm"'
         state: present
 
     - name: Cargar NVM en el archivo de perfil (zsh) 2
-      become: false
+      become: true
       lineinfile:
-        dest: $HOME/.zshrc
+        dest: /root/.zshrc
         line: '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm'
         state: present
       
     - name: Cargar NVM en el archivo de perfil (zsh) 3
-      become: false
+      become: true
       lineinfile:
-        dest: $HOME/.zshrc
+        dest: /root/.zshrc
         line: '[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion'
         state: present
 
     - name: Verificar si jenv está instalado
-      become: false
+      become: true
       stat:
-        path: $HOME/.jenv
+        path: {{jenv_path}}
       register: jenv_installed
 
     - name: Instalar jEnv
-      become: false
-      shell: git clone https://github.com/jenv/jenv.git $HOME/.jenv
+      become: true
+      shell: git clone https://github.com/jenv/jenv.git {{jenv_path}}
       when: not jenv_installed.stat.exists
 
     - name: Configurar jEnv en el archivo de perfil (zsh)
-      become: false
+      become: true
       lineinfile:
-        dest: $HOME/.zshrc
-        line: 'export PATH="$HOME/.jenv/bin:$PATH"'
+        dest: /root/.zshrc
+        line: 'export PATH="{{jenv_path}}/bin:$PATH"'
         state: present
 
     - name: Configurar jEnv en el archivo de perfil (zsh) 2
-      become: false
+      become: true
       lineinfile:
-        dest: $HOME/.zshrc
+        dest: /root/.zshrc
         line: 'eval "$(jenv init -)"'
         state: present
 
     - name: Instalar Java (OpenJDK)
-      become: false
+      become: true
       apt:
         name: openjdk-11-jdk
         state: present
 
     - name: Configurar JAVA_HOME en el archivo de perfil (zsh)
-      become: false
+      become: true
       lineinfile:
-        dest: $HOME/.zshrc
-        line: 'export JAVA_HOME="$HOME/.jenv/versions/$(jenv version-name)"'
+        dest: /root/.zshrc
+        line: 'export JAVA_HOME="{{jenv_path}}/versions/$(jenv version-name)"'
         state: present
 
     - name: Verificar si pyenv está instalado
-      become: false
+      become: true
       stat:
-        path: $HOME/.pyenv
+        path: /root/.pyenv
       register: pyenv_installed
 
     - name: Instalar pyenv
-      become: false
+      become: true
       shell: curl https://pyenv.run | bash
       when: not pyenv_installed.stat.exists
 
     - name: Configurar pyenv en el archivo de perfil (zsh)
-      become: false
+      become: true
       lineinfile:
-        dest: $HOME/.zshrc
-        line: 'export PATH="$HOME/.pyenv/bin:$PATH"'
+        dest: /root/.zshrc
+        line: 'export PATH="/root/.pyenv/bin:$PATH"'
         state: present
 
     - name: Configurar pyenv en el archivo de perfil (zsh) 2
-      become: false
+      become: true
       lineinfile:
-        dest: $HOME/.zshrc
+        dest: /root/.zshrc
         line: 'eval "$(pyenv init --path)"'
         state: present
 
     - name: Configurar pyenv en el archivo de perfil (zsh) 3
-      become: false
+      become: true
       lineinfile:
-        dest: $HOME/.zshrc
+        dest: /root/.zshrc
         line: 'eval "$(pyenv virtualenv-init -)"'
         state: present
 
     - name: Cargar configuración zsh
-      become: false
-      shell: source $HOME/.zshrc
+      become: true
+      shell: source /root/.zshrc
 
     - name: Configurar Java con jEnv
       become: false
@@ -238,29 +238,29 @@
       command: jenv global 11.0
 
     - name: Cargar NVM en el shell
-      become: false
-      shell: . $HOME/.nvm/nvm.sh
+      become: true
+      shell: . /root/.nvm/nvm.sh
 
     - name: Verificar si node ya está instalado
-      become: false
+      become: true
       stat:
         path: /root/.nvm/versions/node
       register: node_installed
 
     - name: Instalar Node.js usando NVM
-      become: false
+      become: true
       shell: nvm install node
       when: not node_installed.stat.exists
 
     - name: Actualizar pyenv
-      become: false
+      become: true
       shell: pyenv update
       when: pyenv_installed.stat.exists
     
     - name: Verificar si Python 3.10 ya está instalado
-      become: false
+      become: true
       find:
-        paths: "$HOME/.pyenv/versions"
+        paths: "/root/.pyenv/versions"
         file_type: directory
         recurse: no
       register: python_installed
@@ -279,13 +279,13 @@
       command: pyenv global 3.10
 
     - name: Instalar Docker
-      become: false
+      become: true
       apt:
         name: docker.io
         state: present
 
     - name: Instalar neovim
-      become: false
+      become: true
       apt:
         name: neovim
         state: present
@@ -297,7 +297,7 @@
       register: vscode_installed
 
     - name: Instalar Visual Studio Code
-      become: false
+      become: true
       snap:
         name: code
         channel: stable
@@ -319,7 +319,7 @@
       ignore_errors: true
 
     - name: Instalar Appium Inspector
-      become: false
+      become: true
       apt:
         name: appium-desktop
         state: present
@@ -331,7 +331,7 @@
       register: minikube_installed
 
     - name: Instalar Minikube
-      become: false
+      become: true
       apt:
         name: minikube
         state: present
@@ -344,7 +344,7 @@
       ignore_errors: true
 
     - name: Instalar AWS CLI
-      become: false
+      become: true
       apt:
         name: aws-cli
         state: present
@@ -357,7 +357,7 @@
       register: android_installed
 
     - name: Instalar Android Studio
-      become: false
+      become: true
       snap:
         name: android-studio
         classic: yes
@@ -370,7 +370,7 @@
       register: postman_installed
 
     - name: Instalar Postman
-      become: false
+      become: true
       snap:
         name: postman
         classic: yes
@@ -383,7 +383,7 @@
       register: trello_installed
 
     - name: Instalar Trello
-      become: false
+      become: true
       snap:
         name: Trello Desktop
         classic: yes
