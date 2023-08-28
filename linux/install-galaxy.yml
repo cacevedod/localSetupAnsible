@@ -64,23 +64,23 @@
     - name: Verificar si Oh My Zsh está instalado
       become: false
       stat:
-        path: /root/.oh-my-zsh
+        path: $HOME/.oh-my-zsh
       register: ohmyzsh_installed
 
     - name: Instalar Oh My Zsh 1
-      become: true
+      become: false
       shell: >
         apt install zsh -y
       when: not ohmyzsh_installed.stat.exists
 
     - name: Instalar Oh My Zsh 2
-      become: true
+      become: false
       shell: >
         sh -c "$(wget https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh -O -)"
       when: not ohmyzsh_installed.stat.exists
 
     - name: Instalar Oh My Zsh 3
-      become: true
+      become: false
       shell: >
         chsh -s `which zsh`
       when: not ohmyzsh_installed.stat.exists
@@ -128,7 +128,7 @@
       register: nvm_installed
 
     - name: Instalar NVM
-      become: true
+      become: false
       shell: curl https://raw.githubusercontent.com/creationix/nvm/master/install.sh | bash
       when: not nvm_installed.stat.exists
 
@@ -160,7 +160,7 @@
       register: jenv_installed
 
     - name: Instalar jEnv
-      become: true
+      become: false
       shell: git clone https://github.com/jenv/jenv.git $HOME/.jenv
       when: not jenv_installed.stat.exists
 
@@ -179,7 +179,7 @@
         state: present
 
     - name: Instalar Java (OpenJDK)
-      become: true
+      become: false
       apt:
         name: openjdk-11-jdk
         state: present
@@ -198,7 +198,7 @@
       register: pyenv_installed
 
     - name: Instalar pyenv
-      become: true
+      become: false
       shell: curl https://pyenv.run | bash
       when: not pyenv_installed.stat.exists
 
@@ -253,7 +253,7 @@
       when: not node_installed.stat.exists
 
     - name: Actualizar pyenv
-      become: true
+      become: false
       shell: pyenv update
       when: pyenv_installed.stat.exists
     
@@ -279,13 +279,13 @@
       command: pyenv global 3.10
 
     - name: Instalar Docker
-      become: true
+      become: false
       apt:
         name: docker.io
         state: present
 
     - name: Instalar neovim
-      become: true
+      become: false
       apt:
         name: neovim
         state: present
@@ -297,7 +297,7 @@
       register: vscode_installed
 
     - name: Instalar Visual Studio Code
-      become: true
+      become: false
       snap:
         name: code
         channel: stable
@@ -319,7 +319,7 @@
       ignore_errors: true
 
     - name: Instalar Appium Inspector
-      become: true
+      become: false
       apt:
         name: appium-desktop
         state: present
@@ -331,7 +331,7 @@
       register: minikube_installed
 
     - name: Instalar Minikube
-      become: true
+      become: false
       apt:
         name: minikube
         state: present
@@ -344,7 +344,7 @@
       ignore_errors: true
 
     - name: Instalar AWS CLI
-      become: true
+      become: false
       apt:
         name: aws-cli
         state: present
@@ -357,7 +357,7 @@
       register: android_installed
 
     - name: Instalar Android Studio
-      become: true
+      become: false
       snap:
         name: android-studio
         classic: yes
@@ -370,7 +370,7 @@
       register: postman_installed
 
     - name: Instalar Postman
-      become: true
+      become: false
       snap:
         name: postman
         classic: yes
@@ -383,7 +383,7 @@
       register: trello_installed
 
     - name: Instalar Trello
-      become: true
+      become: false
       snap:
         name: Trello Desktop
         classic: yes
